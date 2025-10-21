@@ -98,7 +98,7 @@ export function ReportDetailsDialog({
         });
         return;
       }
-      const reportRef = doc(firestore, 'reports', report.id);
+  const reportRef = doc(firestore, 'reports', report.id!);
       
       let updateData: { status: Report['status'], resolvedImageUrl?: string } = { status };
 

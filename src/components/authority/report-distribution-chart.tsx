@@ -49,7 +49,7 @@ export function ReportDistributionChart({ reports }: { reports: Report[] }) {
     ).length,
   }));
   
-  const startingDayOfWeek = getDay(days[0].date);
+  const startingDayOfWeek = getDay(days[0]);
 
   const monthLabels = data
     .map((d, i) => {

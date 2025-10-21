@@ -89,11 +89,11 @@ export function StatusBreakdownChart({ reports }: { reports: Report[] }) {
                 />
               ))}
             </Pie>
-             <Legend
-              content={({ payload }) => {
+            <Legend
+              content={({ payload }: any) => {
                 return (
                   <ul className="grid gap-2 grid-cols-3">
-                    {payload?.map((item, index) => {
+                    {payload?.map((item: any, index: number) => {
                         const { name, color, payload: itemPayload } = item;
                         const Icon = chartConfig[name]?.icon;
                         const value = itemPayload?.value;

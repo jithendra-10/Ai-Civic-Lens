@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import type { User } from './types';
 
 export async function getCurrentUser(): Promise<User | null> {
-  const userCookie = cookies().get('currentUser');
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get('currentUser');
   if (userCookie) {
     try {
       const user: User = JSON.parse(userCookie.value);
