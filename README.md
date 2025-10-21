@@ -3,6 +3,11 @@
 CivicLens is a modern, AI-driven web application designed to empower citizens worldwide to report civic issues such as potholes, illegal waste dumping, flooding, and public safety concerns. By bridging the gap between citizens and authorities, CivicLens streamlines issue reporting, management, and resolution for communities everywhere.
 
 ---
+## 🚀 Application Link
+
+Try CivicLens live: [https://aiciviclens.netlify.app/](https://aiciviclens.netlify.app/)
+
+---
 
 ## ✨ Key Features
 
