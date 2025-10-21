@@ -161,4 +161,57 @@ For support or inquiries, reach out via [GitHub Issues](https://github.com/jithe
 
 ---
 
+## 🌐 Connect
+
+<p align="left">
+  <a href="https://github.com/jithendra-10/" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-Profile-informational?style=for-the-badge&logo=github" alt="GitHub Profile"/>
+  </a>
+  <a href="https://www.linkedin.com/in/jithendra10/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-Profile-blue?style=for-the-badge&logo=linkedin" alt="LinkedIn Profile"/>
+  </a>
+</p>
+
+---
+
+## 🖼️ Screenshots
+
+**1.Landing page**
+
+<img width="954" height="719" alt="landing page" src="https://github.com/user-attachments/assets/7921b19c-a32b-45a2-af43-d84b4df9efe3" />
+
+**2.Login page**
+
+<img width="1851" height="872" alt="login page" src="https://github.com/user-attachments/assets/373167b1-4864-4a8d-be4d-4b050c79c411" />
+
+**3.Citizen Dashboard**
+
+<img width="1854" height="856" alt="citizen dashboard" src="https://github.com/user-attachments/assets/5d7e7e2a-1042-47e2-bd21-2b8fe1a0fe1a" />
+
+<img width="1849" height="861" alt="report submission" src="https://github.com/user-attachments/assets/c7667cff-c5d1-4017-8035-622bed9f959c" />
+
+<img width="1642" height="770" alt="submitted reports" src="https://github.com/user-attachments/assets/f3f2fc43-7130-4e84-9203-2f43c75f587f" />
+
+**4.Authority Dashboard**
+
+<img width="1835" height="855" alt="Authority dashboard" src="https://github.com/user-attachments/assets/b65cc2b4-9e57-4092-889e-54a15170f458" />
+
+<img width="1851" height="876" alt="AD1" src="https://github.com/user-attachments/assets/c006ffb1-1923-473e-8982-f8867d3bde38" />
+
+<img width="1847" height="871" alt="recent reposts" src="https://github.com/user-attachments/assets/7b3f36ab-ae95-461b-85bd-faff8f156f7a" />
+
+<img width="1035" height="796" alt="report details" src="https://github.com/user-attachments/assets/7eb26406-cecf-437f-b1a3-6080e5d33b87" />
+
+**5.Settings**
+
+<img width="1116" height="864" alt="setting" src="https://github.com/user-attachments/assets/998225a0-ed76-4ed0-8cfe-215c0345b6a4" />
+
+
+- **Landing Page**: Entry point showcasing CivicLens’s mission and quick access to features.
+- **Login Page**: Secure sign-in and registration for citizens and authorities.
+- **Citizen Dashboard**: Personalized panel to report and track civic issues.
+- **Authority Dashboard**: Administrative hub for authorities to manage, analyze, and resolve reports.
+
+---
+
 *Empowering communities, one report at a time.*
