@@ -13,7 +13,7 @@ const char* password = "YOUR_WIFI_PASSWORD";
 
 // Replace with your PC's IP address (e.g., 192.168.1.5)
 // IMPORTANT: Use HTTP, not HTTPS unless you configure SSL
-const char* serverUrl = "http://YOUR_PC_IP:3000/api/iot/report"; 
+const char* serverUrl = "http://YOUR_PC_IP:9002/api/iot/report"; 
 
 const char* deviceId = "ESP32-CAM-001";
 const double latitude = 17.3850; // Mock location (Hyderabad)
