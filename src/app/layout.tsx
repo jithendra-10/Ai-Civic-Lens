@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter as FontSans } from 'next/font/google';
+import { Public_Sans as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { DM_Sans as FontHeadline } from 'next/font/google';
+import { Merriweather as FontHeadline } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase';
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -15,7 +15,7 @@ const fontSans = FontSans({
 const fontHeadline = FontHeadline({
   subsets: ['latin'],
   variable: '--font-headline',
-  weight: ['400', '500', '700'],
+  weight: ['300', '400', '700', '900'],
 });
 
 
@@ -32,16 +32,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          fontHeadline.variable
-        )}>
+        "min-h-screen bg-background font-sans antialiased",
+        fontSans.variable,
+        fontHeadline.variable
+      )}>
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <FirebaseClientProvider>
             {children}
             <Toaster />

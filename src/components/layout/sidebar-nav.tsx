@@ -30,6 +30,7 @@ export default function SidebarNavigation({ user }: { user: User }) {
 
   const citizenNav = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/feed', label: 'Community Pulse', icon: Sparkles }, // New Feed Link
     { href: '/report', label: 'New Report', icon: FilePlus2 },
     { href: '/my-reports', label: 'My Reports', icon: History },
   ];

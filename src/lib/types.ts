@@ -14,7 +14,7 @@ export interface User {
   // Authority-specific
   department?: string;
   jobTitle?: string;
-  
+
   createdAt: string; // ISO string
 }
 
@@ -23,6 +23,7 @@ export type Report = {
   reportId?: string;
   userId: string;
   userFullName: string;
+  role?: 'citizen' | 'authority'; // Added for feed UI
   imageUrl: string;
   imageHint: string;
   fingerprintKeywords?: string[];
@@ -41,10 +42,38 @@ export type Report = {
   createdAt: string; // ISO string
 };
 
+
 export type DuplicateSubmission = {
-    id?: string;
-    userId: string;
-    userFullName: string;
-    originalReportId: string;
-    createdAt: string; // ISO string
+  id?: string;
+  userId: string;
+  userFullName: string;
+  originalReportId: string;
+  createdAt: string; // ISO string
 }
+
+export interface IoTDevice {
+  id: string;
+  name: string;
+  locationName: string;
+  lat: number;
+  lng: number;
+  status: 'active' | 'maintenance' | 'offline';
+  lastPing: string; // ISO string
+}
+
+export type IoTReport = {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  issueType: string;
+  severity: 'Low' | 'Medium' | 'High';
+  confidenceScore: number;
+  imageUrl: string;
+  detectedAt: string; // ISO string
+  status: 'Unresolved' | 'Resolved';
+};
+

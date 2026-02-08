@@ -43,12 +43,17 @@ service cloud.firestore {
       
       // Allow authorities to read any report.
       // Allow citizens to read their own reports.
-      allow get: if isSignedIn() && (isAuthority() || isOwnerOfReport());
-      allow list: if isSignedIn() && isAuthority();
+      // FOR SOCIAL FEED: Allow any signed-in user to read any report
+      // UPDATE: Allow PUBLIC read (unauthenticated) to enable IoT Duplicate Checks and Public Transparency
+      allow get: if true; 
+      allow list: if true;
+
 
       // Citizens can create reports.
       // The new report's userId must match the creator's UID.
-      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      // OR allow IoT devices (unauthenticated) to submit if userId is 'IOT_DEVICE'
+      allow create: if (isSignedIn() && request.auth.uid == request.resource.data.userId) || request.resource.data.userId == 'IOT_DEVICE';
+
 
       // Authorities can update any report (e.g., to change status).
       // Citizens cannot update reports directly after creation.
