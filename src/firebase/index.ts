@@ -2,46 +2,24 @@
 
 import { firebaseConfig, isFirebaseConfigured } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, updateProfile } from 'firebase/auth';
-import { getFirestore, setDoc, doc } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
   if (!getApps().length) {
-    // Important! initializeApp() is called without any arguments because Firebase App Hosting
-    // integrates with the initializeApp() function to provide the environment variables needed to
-    // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-    // without arguments.
-    let firebaseApp;
+    let firebaseApp: FirebaseApp;
     try {
-      // Attempt to initialize via Firebase App Hosting environment variables
+      // Try Firebase App Hosting auto-init first
       firebaseApp = initializeApp();
     } catch (e) {
-      // Only warn in production because it's normal to use the firebaseConfig to initialize
-      // during development
-      if (process.env.NODE_ENV === "production") {
+      if (process.env.NODE_ENV === 'production') {
         console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
       }
-
-      // Guard: only initialize with config if the required env vars are present.
-      // This prevents Firebase from throwing app/no-options during SSG on Netlify
-      // when NEXT_PUBLIC_FIREBASE_* env vars are not yet set.
-      if (!isFirebaseConfigured()) {
-        console.warn(
-          'Firebase env vars missing (NEXT_PUBLIC_FIREBASE_API_KEY etc.). ' +
-          'Firebase will not be initialized. Set these in Netlify environment variables.'
-        );
-        // Return stub so the rest of the app doesn't crash at build time.
-        return null as unknown as ReturnType<typeof getSdks>;
-      }
-
+      // Fall back to explicit config (reads from NEXT_PUBLIC_FIREBASE_* env vars)
       firebaseApp = initializeApp(firebaseConfig);
     }
-
     return getSdks(firebaseApp);
   }
-
-  // If already initialized, return the SDKs with the already initialized App
   return getSdks(getApp());
 }
 
@@ -49,7 +27,7 @@ export function getSdks(firebaseApp: FirebaseApp) {
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    firestore: getFirestore(firebaseApp),
   };
 }
 
@@ -58,10 +36,6 @@ export * from './client-provider';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
-// This file is no longer needed with email/password auth
-// export * from './non-blocking-login';
 export * from './errors';
 export * from './error-emitter';
-
-// New auth actions
 export * from './auth-actions';
