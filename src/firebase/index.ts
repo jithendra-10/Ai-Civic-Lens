@@ -1,6 +1,6 @@
 'use client';
 
-import { firebaseConfig } from '@/firebase/config';
+import { firebaseConfig, isFirebaseConfigured } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { getFirestore, setDoc, doc } from 'firebase/firestore'
@@ -22,6 +22,19 @@ export function initializeFirebase() {
       if (process.env.NODE_ENV === "production") {
         console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
       }
+
+      // Guard: only initialize with config if the required env vars are present.
+      // This prevents Firebase from throwing app/no-options during SSG on Netlify
+      // when NEXT_PUBLIC_FIREBASE_* env vars are not yet set.
+      if (!isFirebaseConfigured()) {
+        console.warn(
+          'Firebase env vars missing (NEXT_PUBLIC_FIREBASE_API_KEY etc.). ' +
+          'Firebase will not be initialized. Set these in Netlify environment variables.'
+        );
+        // Return stub so the rest of the app doesn't crash at build time.
+        return null as unknown as ReturnType<typeof getSdks>;
+      }
+
       firebaseApp = initializeApp(firebaseConfig);
     }
 
