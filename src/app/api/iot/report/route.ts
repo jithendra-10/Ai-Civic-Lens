@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateCivicIssueReport } from '@/ai/flows/generate-civic-issue-report';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, query, where, getDocs, limit, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, where, getDocs, limit } from 'firebase/firestore';
+import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { firebaseConfig } from '@/firebase/config';
 
 // ----------------------------------------------------------------------------
@@ -37,10 +38,30 @@ interface AnalysisResult {
 // ----------------------------------------------------------------------------
 // Firebase Initialization (Server-Side compatible)
 // ----------------------------------------------------------------------------
-// We re-initialize here because the main @/firebase/index might be 'use client'
 function getFirebase() {
     const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    return getFirestore(app);
+    return {
+        db: getFirestore(app),
+        storage: getStorage(app),
+    };
+}
+
+// ----------------------------------------------------------------------------
+// Upload image to Firebase Storage, return public download URL
+// ----------------------------------------------------------------------------
+async function uploadImageToStorage(
+    storage: ReturnType<typeof getStorage>,
+    deviceId: string,
+    imageDataUri: string
+): Promise<string> {
+    const timestamp = Date.now();
+    const filename = `iot-reports/${deviceId}/${timestamp}.jpg`;
+    const storageRef = ref(storage, filename);
+
+    // uploadString handles base64 Data URIs directly
+    await uploadString(storageRef, imageDataUri, 'data_url');
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +80,6 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. AI Analysis
-        // Note: generateCivicIssueReport expects { photoDataUri, location }
         let analysis: AnalysisResult;
         try {
             analysis = await generateCivicIssueReport({
@@ -69,19 +89,16 @@ export async function POST(req: NextRequest) {
         } catch (aiError) {
             console.warn("AI Analysis failed (likely billing/quota), using fallback:", aiError);
             analysis = {
-                issueType: 'Pothole',
+                issueType: 'Unclassified',
                 severity: 'Medium' as const,
-                aiDescription: 'Automated fallback report: AI service unavailable. Possible road issue detected.'
+                aiDescription: 'Automated fallback report: AI service unavailable. Manual review required.'
             };
         }
 
-        // 3. Save to Firestore
-        const db = getFirebase();
+        const { db, storage } = getFirebase();
         const reportsRef = collection(db, 'reports');
 
-        // --- DEDUPLICATION CHECK ---
-        // Keep only the FIRST image. If this device already has an active open report
-        // for the same issue type, discard the new submission entirely.
+        // 3. Deduplication Check — keep only the FIRST report per device+issue
         if (analysis.issueType !== 'No Issues') {
             try {
                 const q = query(
@@ -91,12 +108,8 @@ export async function POST(req: NextRequest) {
                     where('status', 'in', ['Submitted', 'In Progress']),
                     limit(1)
                 );
-
                 const snapshot = await getDocs(q);
-
                 if (!snapshot.empty) {
-                    // Duplicate found — return early without touching Firestore.
-                    // The original first image & report remain unchanged.
                     const existingDoc = snapshot.docs[0];
                     return NextResponse.json({
                         success: true,
@@ -107,20 +120,29 @@ export async function POST(req: NextRequest) {
                     });
                 }
             } catch (dedupError) {
-                console.warn("Deduplication check failed (likely permissions), proceeding with new report creation:", dedupError);
+                console.warn("Deduplication check failed, proceeding with new report:", dedupError);
             }
         }
-        // ---------------------------
-        // (reportsRef already defined above)
 
+        // 4. Upload image to Firebase Storage → get a permanent URL
+        let imageUrl: string;
+        try {
+            imageUrl = await uploadImageToStorage(storage, body.deviceId, body.image);
+            console.log(`Image uploaded to Storage: ${imageUrl}`);
+        } catch (storageError) {
+            console.warn("Firebase Storage upload failed, falling back to base64 inline:", storageError);
+            // Fallback: store base64 inline if Storage upload fails (not ideal but keeps data)
+            imageUrl = body.image;
+        }
 
+        // 5. Save metadata (+ Storage URL) to Firestore
         const reportData = {
             issueType: analysis.issueType,
             severity: analysis.severity,
             aiDescription: analysis.aiDescription,
-            imageUrl: body.image, // In production, we should upload to Storage and save URL.
+            imageUrl,                              // ← Now a Firebase Storage URL, not raw base64
             location: body.location,
-            userId: 'IOT_DEVICE', // Matches the backdoor rule we added
+            userId: 'IOT_DEVICE',
             userFullName: `IoT Device (${body.deviceId})`,
             deviceId: body.deviceId,
             source: 'IOT',
@@ -135,6 +157,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: true,
             reportId: docRef.id,
+            imageUrl,
             analysis
         });
 
