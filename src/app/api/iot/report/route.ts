@@ -65,12 +65,12 @@ export async function POST(req: NextRequest) {
             analysis = await generateCivicIssueReport({
                 photoDataUri: body.image,
                 location: body.location
-            });
+            }) as AnalysisResult;
         } catch (aiError) {
             console.warn("AI Analysis failed (likely billing/quota), using fallback:", aiError);
             analysis = {
-                issueType: 'Pothole', // Fallback
-                severity: 'Medium' as 'Medium',
+                issueType: 'Pothole',
+                severity: 'Medium' as const,
                 aiDescription: 'Automated fallback report: AI service unavailable. Possible road issue detected.'
             };
         }
@@ -80,7 +80,8 @@ export async function POST(req: NextRequest) {
         const reportsRef = collection(db, 'reports');
 
         // --- DEDUPLICATION CHECK ---
-        // Check if this device already has an active report for this issue type
+        // Keep only the FIRST image. If this device already has an active open report
+        // for the same issue type, discard the new submission entirely.
         if (analysis.issueType !== 'No Issues') {
             try {
                 const q = query(
@@ -94,23 +95,19 @@ export async function POST(req: NextRequest) {
                 const snapshot = await getDocs(q);
 
                 if (!snapshot.empty) {
-                    // Duplicate found! Update the existing report's "lastSeen" instead of creating a new one
+                    // Duplicate found — return early without touching Firestore.
+                    // The original first image & report remain unchanged.
                     const existingDoc = snapshot.docs[0];
-                    await updateDoc(doc(db, 'reports', existingDoc.id), {
-                        lastSeenAt: new Date().toISOString(),
-                    });
-
                     return NextResponse.json({
                         success: true,
                         reportId: existingDoc.id,
-                        message: 'Duplicate incident detected. Updated existing active report.',
+                        message: 'Duplicate incident detected. First report retained.',
                         analysis,
                         isDuplicate: true
                     });
                 }
             } catch (dedupError) {
                 console.warn("Deduplication check failed (likely permissions), proceeding with new report creation:", dedupError);
-                // Proceed to create new report anyway
             }
         }
         // ---------------------------

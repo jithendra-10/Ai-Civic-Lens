@@ -1,19 +1,40 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <WiFiMulti.h>  // <<< Smart WiFi: auto-connects to best available network
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "esp_camera.h"
-#include "base64.h" // Requires 'Base64' library, or use built-in if available (e.g., mbedtls)
+#include "base64.h"
 
 // ==========================================
-// CONFIGURATION
+// MULTI-WIFI CONFIGURATION
 // ==========================================
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+// Add ALL your WiFi networks here. The ESP32 will connect to whichever is available.
+// You can add as many as you need!
+WiFiMulti wifiMulti;
+
+void setupWiFi() {
+  wifiMulti.addAP("HOME_WIFI_SSID",    "HOME_WIFI_PASSWORD");    // e.g. Your home
+  wifiMulti.addAP("OFFICE_WIFI_SSID",  "OFFICE_WIFI_PASSWORD");  // e.g. Your college/office
+  wifiMulti.addAP("MOBILE_HOTSPOT",    "HOTSPOT_PASSWORD");       // e.g. Your mobile hotspot
+  // Add more networks as needed: wifiMulti.addAP("SSID", "PASSWORD");
+
+  Serial.print("Connecting to WiFi...");
+  while (wifiMulti.run() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("WiFi connected! IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Connected to: ");
+  Serial.println(WiFi.SSID()); // Shows which network it connected to
+}
 
 // Replace with your PC's IP address (e.g., 192.168.1.5)
 // IMPORTANT: Use HTTP, not HTTPS unless you configure SSL
-const char* serverUrl = "http://YOUR_PC_IP:9002/api/iot/report"; 
+const char* serverUrl = "https://aiciviclens.netlify.app/api/iot/report"; 
 
 const char* deviceId = "ESP32-CAM-001";
 const double latitude = 17.3850; // Mock location (Hyderabad)
@@ -86,17 +107,11 @@ void setup() {
 
   setupCamera();
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
+  setupWiFi(); // <<< Auto-connects to whichever known WiFi is in range!
   
   // Optional: Turn on Flash LED to indicate start
   pinMode(4, OUTPUT);
-  digitalWrite(4, LOW); // Usually logic-inverted or needs specific control, let's keep it simple
+  digitalWrite(4, LOW);
 }
 
 void captureAndSend() {
@@ -135,8 +150,11 @@ void captureAndSend() {
 
   // 3. Send HTTP POST
   if(WiFi.status() == WL_CONNECTED){
+    WiFiClientSecure client;
+    client.setInsecure(); // Skip certificate validation for simplicity/prototyping
+
     HTTPClient http;
-    http.begin(serverUrl);
+    http.begin(client, serverUrl); // Use the secure client
     http.addHeader("Content-Type", "application/json");
 
     Serial.println("Sending data...");

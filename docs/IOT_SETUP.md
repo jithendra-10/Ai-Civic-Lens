@@ -4,7 +4,7 @@ This guide explains how to connect ESP32-CAM or other IoT devices to the Ai-Civi
 
 ## API Endpoint
 **URL**: `POST /api/iot/report`  
-(e.g., `http://localhost:9002/api/iot/report` or `https://your-app.com/api/iot/report`)
+(e.g., `https://aiciviclens.netlify.app/api/iot/report`)
 
 ### Request Format
 Send a JSON POST request with the following body:

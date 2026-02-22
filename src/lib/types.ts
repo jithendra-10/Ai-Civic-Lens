@@ -73,6 +73,7 @@ export type IoTReport = {
   severity: 'Low' | 'Medium' | 'High';
   confidenceScore: number;
   imageUrl: string;
+  aiDescription?: string;  // Gemini AI analysis result
   detectedAt: string; // ISO string
   status: 'Unresolved' | 'Resolved';
 };
