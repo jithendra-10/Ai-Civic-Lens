@@ -73,7 +73,7 @@ const double longitude = 78.4867;
 // Motion detection settings
 // ↑ Higher = less sensitive (fewer false triggers)
 // ↓ Lower  = more sensitive (triggers on small changes)
-#define MOTION_SIZE_THRESHOLD   0.12f  // 12% JPEG size change triggers motion
+#define MOTION_SIZE_THRESHOLD   0.20f  // 20% JPEG size change triggers motion (ignore auto-exposure flicker)
 #define MOTION_BYTE_THRESHOLD   25     // Average byte diff out of 255
 #define MOTION_SAMPLE_COUNT     150    // Number of byte samples to compare
 
@@ -284,12 +284,15 @@ void setup() {
 
   setupCamera();
 
-  // Warm-up: discard first few frames (camera auto-exposure adjusting)
-  Serial.println("Camera warming up...");
-  for (int i = 0; i < 3; i++) {
+  // Warm-up: wait for camera auto-exposure to fully stabilize (~6 seconds)
+  // Without this, the reference frame is taken while AE is still adjusting
+  // causing false motion triggers on every subsequent frame.
+  Serial.println("Camera warming up (letting auto-exposure stabilize)...");
+  for (int i = 0; i < 12; i++) {
     camera_fb_t* warmup = esp_camera_fb_get();
     if (warmup) esp_camera_fb_return(warmup);
     delay(500);
+    if (i % 4 == 3) Serial.printf("  %d/12 frames...\n", i + 1);
   }
 
   setupWiFi();
