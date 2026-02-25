@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { CameraFeedCard } from './camera-feed-card';
 import { LiveView } from './live-view';
 import { useFirestore } from '@/firebase';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { Report, IoTReport } from '@/lib/types';
 import { Camera, RefreshCw, Filter, Map as MapIcon, Grid, AlertTriangle, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,15 @@ export function SurveillanceDashboard() {
 
         return () => unsubscribe();
     }, [firestore]);
+
+    const handleDelete = async (reportId: string) => {
+        if (!firestore) return;
+        try {
+            await deleteDoc(doc(firestore, 'reports', reportId));
+        } catch (err) {
+            console.error('Failed to delete report:', err);
+        }
+    };
 
     const filteredReports = reports.filter(r => {
         if (filter === 'all') return true;
@@ -149,7 +158,7 @@ export function SurveillanceDashboard() {
             {viewMode === 'grid' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in-50 duration-500">
                     {filteredReports.map(report => (
-                        <CameraFeedCard key={report.id} report={report} />
+                        <CameraFeedCard key={report.id} report={report} onDelete={handleDelete} />
                     ))}
                     {filteredReports.length === 0 && (
                         <div className="col-span-full py-20 text-center text-muted-foreground">

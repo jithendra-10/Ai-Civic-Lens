@@ -3,12 +3,13 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { IoTReport } from '@/lib/types';
-import { MapPin, Camera, ImageOff, Bot } from 'lucide-react';
+import { MapPin, Camera, ImageOff, Bot, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 
 interface CameraFeedCardProps {
     report: IoTReport;
+    onDelete?: (id: string) => void;
     onAssign?: (id: string) => void;
 }
 
@@ -18,9 +19,22 @@ const severityColors: Record<string, string> = {
     Low: 'bg-green-600',
 };
 
-export function CameraFeedCard({ report, onAssign }: CameraFeedCardProps) {
+export function CameraFeedCard({ report, onDelete, onAssign }: CameraFeedCardProps) {
     const isIssue = report.issueType !== 'No Issues';
     const [imgError, setImgError] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDelete = async () => {
+        if (!confirmDelete) {
+            setConfirmDelete(true);
+            // Auto-reset confirmation after 4 seconds
+            setTimeout(() => setConfirmDelete(false), 4000);
+            return;
+        }
+        setDeleting(true);
+        onDelete?.(report.id);
+    };
 
     return (
         <Card className={`overflow-hidden border-l-4 transition-shadow hover:shadow-lg ${isIssue ? 'border-l-red-500' : 'border-l-green-500'}`}>
@@ -31,7 +45,7 @@ export function CameraFeedCard({ report, onAssign }: CameraFeedCardProps) {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
-                    LIVE
+                    LIVE FEED
                 </div>
 
                 {/* Severity chip */}
@@ -95,7 +109,7 @@ export function CameraFeedCard({ report, onAssign }: CameraFeedCardProps) {
                     </div>
                 )}
 
-                {/* Confidence bar (shown only when no AI description, as fallback UI) */}
+                {/* Confidence bar fallback */}
                 {isIssue && !report.aiDescription && (
                     <div className="bg-red-50 dark:bg-red-950/20 p-2 rounded text-xs space-y-1">
                         <div className="flex justify-between font-medium text-red-700 dark:text-red-400">
@@ -110,9 +124,24 @@ export function CameraFeedCard({ report, onAssign }: CameraFeedCardProps) {
             </CardContent>
 
             <CardFooter className="p-3 bg-muted/50 flex gap-2">
-                <Button size="sm" variant="outline" className="w-full" disabled={!isIssue}>
+                <Button size="sm" variant="outline" className="flex-1" disabled={!isIssue}>
                     {isIssue ? 'View Details' : 'System Normal'}
                 </Button>
+
+                {/* Delete button — two-step confirmation */}
+                {onDelete && (
+                    <Button
+                        size="sm"
+                        variant={confirmDelete ? 'destructive' : 'ghost'}
+                        className="gap-1.5"
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        title={confirmDelete ? 'Click again to confirm deletion' : 'Delete this report'}
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        {deleting ? 'Deleting...' : confirmDelete ? 'Confirm?' : ''}
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );
