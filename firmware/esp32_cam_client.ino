@@ -50,6 +50,10 @@ void setupWiFi() {
   wifiMulti.addAP("MOBILE_HOTSPOT",    "HOTSPOT_PASSWORD");
   // Add more: wifiMulti.addAP("SSID", "PASSWORD");
 
+  // Reduce TX power to prevent brownout during WiFi transmission
+  // Default is 20dBm which causes voltage sag on weak power supplies
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);  // Reduce from 20dBm → 8.5dBm
+
   Serial.print("Connecting to WiFi");
   while (wifiMulti.run() != WL_CONNECTED) {
     delay(500);
@@ -60,6 +64,9 @@ void setupWiFi() {
   Serial.println(WiFi.localIP());
   Serial.print("Network: ");
   Serial.println(WiFi.SSID());
+
+  // Let WiFi fully stabilize before first transmission
+  delay(2000);
 }
 
 // Server endpoint
@@ -74,7 +81,8 @@ const double longitude = 78.4867;
 // ↑ Higher = less sensitive (fewer false triggers)
 // ↓ Lower  = more sensitive (triggers on small changes)
 #define MOTION_SIZE_THRESHOLD   0.20f  // 20% JPEG size change triggers motion (ignore auto-exposure flicker)
-#define MOTION_BYTE_THRESHOLD   25     // Average byte diff out of 255
+#define MOTION_BYTE_THRESHOLD   100    // Average byte diff out of 255
+                                       // JPEG codec noise = ~70-85 naturally, real motion = 100+
 #define MOTION_SAMPLE_COUNT     150    // Number of byte samples to compare
 
 // Timing
