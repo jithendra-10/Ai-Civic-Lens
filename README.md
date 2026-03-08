@@ -5,7 +5,7 @@ CivicLens is a modern, AI-driven web application designed to empower citizens wo
 ---
 ## 🚀 Application Link
 
-Try CivicLens live: [https://aiciviclens.netlify.app/](https://aiciviclens.netlify.app/)
+Try CivicLens live: [https://aiciviclens.netlify.app/](https://ai-civiclens.netlify.app/)
 
 ---
 
