@@ -181,9 +181,7 @@ For support or inquiries, reach out via [GitHub Issues](https://github.com/jithe
 
 ## 🖼️ Screenshots
 
-**1.Landing page**
-
-<img width="954" height="719" alt="landing page" src="https://github.com/user-attachments/assets/7921b19c-a32b-45a2-af43-d84b4df9efe3" />
+**1.Landing page**<img width="1919" height="884" alt="landing page" src="https://github.com/user-attachments/assets/e766dedc-8736-4a4e-a82a-dc1a8ccfca0f" />
 
 **2.Login page**
 
